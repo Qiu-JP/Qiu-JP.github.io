@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>一、Linux环境搭建 | 测试</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="写在最前面：这一栏目主要是记录一些环境配置和常用工具的所有基础准备，因为我发现这些东西虽然非常基础但其实自己一个人入门的话还是有一些阻碍的。特别是对于自己一个非计算机的学生来说，本科的课程往往在教一些落于笔头的的电路计算和设计，仿真直接下载三大公司提供的EDA工具使用，确实没有积累起一个完整的系统的代码开发环境和平台。细细回忆起来整个本科生涯一共就接触过三门比较软的代码课，分别是c++和pytho">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一、Linux环境搭建">
+<meta property="og:url" content="https://qiu-jp.github.io/2025/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="测试">
+<meta property="og:description" content="写在最前面：这一栏目主要是记录一些环境配置和常用工具的所有基础准备，因为我发现这些东西虽然非常基础但其实自己一个人入门的话还是有一些阻碍的。特别是对于自己一个非计算机的学生来说，本科的课程往往在教一些落于笔头的的电路计算和设计，仿真直接下载三大公司提供的EDA工具使用，确实没有积累起一个完整的系统的代码开发环境和平台。细细回忆起来整个本科生涯一共就接触过三门比较软的代码课，分别是c++和pytho">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-03-19T18:08:59.000Z">
+<meta property="article:modified_time" content="2025-03-19T18:31:20.930Z">
+<meta property="article:author" content="Qiu Junpeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="测试" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">测试</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://Qiu-JP.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-一、Linux环境搭建" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" class="article-date">
+  <time class="dt-published" datetime="2025-03-19T18:08:59.000Z" itemprop="datePublished">2025-03-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      一、Linux环境搭建
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>写在最前面：<br>这一栏目主要是记录一些环境配置和常用工具的所有基础准备，因为我发现这些东西虽然非常基础但其实自己一个人入门的话还是有一些阻碍的。特别是对于自己一个非计算机的学生来说，本科的课程往往在教一些落于笔头的的电路计算和设计，仿真直接下载三大公司提供的EDA工具使用，确实没有积累起一个完整的系统的代码开发环境和平台。细细回忆起来整个本科生涯一共就接触过三门比较软的代码课，分别是c++和python，那时候以为c++就得下工具visual studio，python就得下工具pycharm，至于linux系统，应该就是我要用服务器的时候才会用到吧。结果后来和计算机的同学一起自习，发现人家打开一个vs code就可以运行各式各样的代码，我也照葫芦画瓢打开vscode写了一个hello world结果就跟个记事本一样完全无法运行（笑）。甚至以前最开始的时候从github上下载东西也不会用git下载，下载下来一个压缩包解压打开找不到visual studio工程就不知道如何运行。那个时候确实是非常无知了，但又内心暗自觉得这些只是是最基础的部分又不好意思去问只能在网上像无头苍蝇一样检索，所以我觉得把这样的一个基础环境的配置和搭建总结下来还是很有必要的。这些各种工具的教程其实细细搜索网上会更加全面，这里就当一个搬运总结好了，顺便自己下次换电脑重新配环境时也有个指导。</p>
+<p>第一部分主要是linux环境的配置和本人最喜欢的编辑器vs code的使用。因为linux环境对于很多开源工程来说还是很必要的，往往来说比windows环境的适配性要更好一些，所以主要还是采用linux环境去做一个开发。由于我们平时买到的电脑大多还是windows系统，因此以往比较推荐的方法主要是在电脑中再配置一个linux的虚拟机实现一个双系统，不过虚拟机和本地之间互相传输文件以及打开关闭虚拟机还是一个很麻烦的事情，所以不如使用最新的wsl2工具，可以理解为wsl2就是microsoft提供了一个无需使用vmware即可实现linux系统的解决方案。</p>
+<p>演示的电脑为windows11系统，首先安装wsl2。</p>
+<p>打开控制面板，选择“程序”&gt;“程序和功能”&gt;“启用或关闭windows功能”。</p>
+<p>勾选Hyper-V、适用于Linux的Windows子系统、虚拟机平台。点击确定后等待电脑重启进行配置。</p>
+<p>选择“系统”&gt;“开发者选项“ ，打开开发者模式。</p>
+<p>通过命令行安装Ubuntu发行版，打开Powershell，输入如下命令自动安装最新版Ubuntu。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wsl --install</span><br></pre></td></tr></table></figure>
+
+<p>或者可以通过如下命令查看当前支持的所有发行版并选择安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wsl --list --online</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后会自行启动Ubuntu终端，第一次登陆Ubuntu终端时需创建用户名和密码。<br>通过如下指令可以查看已安装的wsl版本，确认安装的wsl版本为2即可。如果wsl版本为1可自行搜索如何进行wsl版本升级。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wsl -l -v</span><br></pre></td></tr></table></figure>
+
+<p>此时打开文件资源管理器即可看到安装的linux系统的存储位置。<br>运行win+G打开运行，输入wsl.exe即可启动wsl。<br>在wsl中输入如下命令可以获取具体所安装的ubuntu发行版的版本信息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ lsb_release -a</span><br></pre></td></tr></table></figure>
+
+<p>第二部分介绍如何使用vscode启动wsl。<br>vs code就是一个代码编辑器，实际上你一开始打开它确实就是一个记事本。但是我们要知道一种语言的代码能够运行是需要提供一个编译操作的，例如visual studio或者pycharm或者等等IDE其实都是为对应的语言提供了一种开发环境，配置了编译器这些工具。但是vs code的好处就在于它实在是非常轻便，你可以把它想象成一种容器进行随意地扩展，因此vs code可以安装很多扩展功能以支持不同语言不同功能的使用，非常地灵活好用，而且界面也确实挺美观的。<br>我们首先从官网或者Microsoft store下载vs code，打开后可以根据下面这个链接中的文章进行一些比较好用且美观的设置。<br><a target="_blank" rel="noopener" href="https://shandianchengzi.blog.csdn.net/article/details/143104357">https://shandianchengzi.blog.csdn.net/article/details/143104357</a></p>
+<p>点击vscode左侧菜单栏最后一个图标进入扩展，或者输入快捷键Ctrl + Shift + X打开扩展，搜索wsl扩展程序并安装。<br>安装完成后点击左下角打开远程窗口，选择连接到wsl即可进入远程窗口。<br>点击最顶部的菜单栏的“终端”&gt;“新建终端”，即可打开linux系统的bash命令行窗口进行操作。<br>查看此时的扩展程序，可以发现wsl和本地的扩展程序是分开的，实质上就可理解为我们通过wsl构建了一个linux系统，以后所有的代码工作和环境配置都会在wsl中进行。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qiu-jp.github.io/2025/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" data-id="cm8g9eo830002f1d576o3db9s" data-title="一、Linux环境搭建" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2025/03/20/VVC-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          VVC(1)
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/03/">三月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/03/20/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2025/03/20/VVC-1/">VVC(1)</a>
+          </li>
+        
+          <li>
+            <a href="/2025/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">一、Linux环境搭建</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Qiu Junpeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
