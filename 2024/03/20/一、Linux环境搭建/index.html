@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"qiu-jp.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="写在最前面：这一栏目主要是记录一些环境配置和常用工具的所有基础准备，因为我发现这些东西虽然非常基础但其实自己一个人入门的话还是有一些阻碍的。特别是对于自己一个非计算机的学生来说，本科的课程往往在教一些落于笔头的的电路计算和设计，仿真直接下载三大公司提供的EDA工具使用，确实没有积累起一个完整的系统的代码开发环境和平台。细细回忆起来整个本科生涯一共就接触过三门比较软的代码课，分别是c++和pytho">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一、Linux环境搭建">
+<meta property="og:url" content="https://qiu-jp.github.io/2024/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="测试">
+<meta property="og:description" content="写在最前面：这一栏目主要是记录一些环境配置和常用工具的所有基础准备，因为我发现这些东西虽然非常基础但其实自己一个人入门的话还是有一些阻碍的。特别是对于自己一个非计算机的学生来说，本科的课程往往在教一些落于笔头的的电路计算和设计，仿真直接下载三大公司提供的EDA工具使用，确实没有积累起一个完整的系统的代码开发环境和平台。细细回忆起来整个本科生涯一共就接触过三门比较软的代码课，分别是c++和pytho">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-19T18:08:59.000Z">
+<meta property="article:modified_time" content="2025-03-19T18:33:45.071Z">
+<meta property="article:author" content="Qiu Junpeng">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://qiu-jp.github.io/2024/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://qiu-jp.github.io/2024/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/","path":"2024/03/20/一、Linux环境搭建/","title":"一、Linux环境搭建"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>一、Linux环境搭建 | 测试</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">测试</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Qiu Junpeng</p>
+  <div class="site-description" itemprop="description">邱的个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiu-jp.github.io/2024/03/20/%E4%B8%80%E3%80%81Linux%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Qiu Junpeng">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="测试">
+      <meta itemprop="description" content="邱的个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="一、Linux环境搭建 | 测试">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          一、Linux环境搭建
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-03-20 02:08:59" itemprop="dateCreated datePublished" datetime="2024-03-20T02:08:59+08:00">2024-03-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-20 02:33:45" itemprop="dateModified" datetime="2025-03-20T02:33:45+08:00">2025-03-20</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>写在最前面：<br>这一栏目主要是记录一些环境配置和常用工具的所有基础准备，因为我发现这些东西虽然非常基础但其实自己一个人入门的话还是有一些阻碍的。特别是对于自己一个非计算机的学生来说，本科的课程往往在教一些落于笔头的的电路计算和设计，仿真直接下载三大公司提供的EDA工具使用，确实没有积累起一个完整的系统的代码开发环境和平台。细细回忆起来整个本科生涯一共就接触过三门比较软的代码课，分别是c++和python，那时候以为c++就得下工具visual studio，python就得下工具pycharm，至于linux系统，应该就是我要用服务器的时候才会用到吧。结果后来和计算机的同学一起自习，发现人家打开一个vs code就可以运行各式各样的代码，我也照葫芦画瓢打开vscode写了一个hello world结果就跟个记事本一样完全无法运行（笑）。甚至以前最开始的时候从github上下载东西也不会用git下载，下载下来一个压缩包解压打开找不到visual studio工程就不知道如何运行。那个时候确实是非常无知了，但又内心暗自觉得这些只是是最基础的部分又不好意思去问只能在网上像无头苍蝇一样检索，所以我觉得把这样的一个基础环境的配置和搭建总结下来还是很有必要的。这些各种工具的教程其实细细搜索网上会更加全面，这里就当一个搬运总结好了，顺便自己下次换电脑重新配环境时也有个指导。</p>
+<p>第一部分主要是linux环境的配置和本人最喜欢的编辑器vs code的使用。因为linux环境对于很多开源工程来说还是很必要的，往往来说比windows环境的适配性要更好一些，所以主要还是采用linux环境去做一个开发。由于我们平时买到的电脑大多还是windows系统，因此以往比较推荐的方法主要是在电脑中再配置一个linux的虚拟机实现一个双系统，不过虚拟机和本地之间互相传输文件以及打开关闭虚拟机还是一个很麻烦的事情，所以不如使用最新的wsl2工具，可以理解为wsl2就是microsoft提供了一个无需使用vmware即可实现linux系统的解决方案。</p>
+<p>演示的电脑为windows11系统，首先安装wsl2。</p>
+<p>打开控制面板，选择“程序”&gt;“程序和功能”&gt;“启用或关闭windows功能”。</p>
+<p>勾选Hyper-V、适用于Linux的Windows子系统、虚拟机平台。点击确定后等待电脑重启进行配置。</p>
+<p>选择“系统”&gt;“开发者选项“ ，打开开发者模式。</p>
+<p>通过命令行安装Ubuntu发行版，打开Powershell，输入如下命令自动安装最新版Ubuntu。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wsl --install</span><br></pre></td></tr></table></figure>
+
+<p>或者可以通过如下命令查看当前支持的所有发行版并选择安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wsl --list --online</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后会自行启动Ubuntu终端，第一次登陆Ubuntu终端时需创建用户名和密码。<br>通过如下指令可以查看已安装的wsl版本，确认安装的wsl版本为2即可。如果wsl版本为1可自行搜索如何进行wsl版本升级。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wsl -l -v</span><br></pre></td></tr></table></figure>
+
+<p>此时打开文件资源管理器即可看到安装的linux系统的存储位置。<br>运行win+G打开运行，输入wsl.exe即可启动wsl。<br>在wsl中输入如下命令可以获取具体所安装的ubuntu发行版的版本信息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ lsb_release -a</span><br></pre></td></tr></table></figure>
+
+<p>第二部分介绍如何使用vscode启动wsl。<br>vs code就是一个代码编辑器，实际上你一开始打开它确实就是一个记事本。但是我们要知道一种语言的代码能够运行是需要提供一个编译操作的，例如visual studio或者pycharm或者等等IDE其实都是为对应的语言提供了一种开发环境，配置了编译器这些工具。但是vs code的好处就在于它实在是非常轻便，你可以把它想象成一种容器进行随意地扩展，因此vs code可以安装很多扩展功能以支持不同语言不同功能的使用，非常地灵活好用，而且界面也确实挺美观的。<br>我们首先从官网或者Microsoft store下载vs code，打开后可以根据下面这个链接中的文章进行一些比较好用且美观的设置。<br><a target="_blank" rel="noopener" href="https://shandianchengzi.blog.csdn.net/article/details/143104357">https://shandianchengzi.blog.csdn.net/article/details/143104357</a></p>
+<p>点击vscode左侧菜单栏最后一个图标进入扩展，或者输入快捷键Ctrl + Shift + X打开扩展，搜索wsl扩展程序并安装。<br>安装完成后点击左下角打开远程窗口，选择连接到wsl即可进入远程窗口。<br>点击最顶部的菜单栏的“终端”&gt;“新建终端”，即可打开linux系统的bash命令行窗口进行操作。<br>查看此时的扩展程序，可以发现wsl和本地的扩展程序是分开的，实质上就可理解为我们通过wsl构建了一个linux系统，以后所有的代码工作和环境配置都会在wsl中进行。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/03/20/VVC-1/" rel="next" title="VVC(1)">
+                  VVC(1) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Qiu Junpeng</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

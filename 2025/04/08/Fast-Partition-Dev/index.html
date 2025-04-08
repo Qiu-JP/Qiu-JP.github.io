@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"qiu-jp.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文介绍并回顾视频编解码中快速划分算法的发展，主要聚焦于新兴的机器学习方法，对比各方法的不同划分表征方式和后处理模式。 在HEVC视频编解码标准下，划分方法仅存在QT四划分。在视频编码的过程中，决定一个CTU块的划分是一个自上而下的迭代过程。编码器会从最大的CTU块开始执行判决，计算划分与不划分两种情况分别的代价，选择代价更小的方式。若判决需要划分，则QT四划分会将原64x64的编码块划分为四个3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fast_Partition_Dev">
+<meta property="og:url" content="https://qiu-jp.github.io/2025/04/08/Fast-Partition-Dev/index.html">
+<meta property="og:site_name" content="测试">
+<meta property="og:description" content="本文介绍并回顾视频编解码中快速划分算法的发展，主要聚焦于新兴的机器学习方法，对比各方法的不同划分表征方式和后处理模式。 在HEVC视频编解码标准下，划分方法仅存在QT四划分。在视频编码的过程中，决定一个CTU块的划分是一个自上而下的迭代过程。编码器会从最大的CTU块开始执行判决，计算划分与不划分两种情况分别的代价，选择代价更小的方式。若判决需要划分，则QT四划分会将原64x64的编码块划分为四个3">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/artition-Dev/image-20250331163346677.png">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/artition-Dev/image-20250331163245256.png">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/artition-Dev/image-20250331165615216.png">
+<meta property="article:published_time" content="2025-04-08T12:11:38.000Z">
+<meta property="article:modified_time" content="2025-04-08T15:26:07.057Z">
+<meta property="article:author" content="Qiu Junpeng">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/artition-Dev/image-20250331163346677.png">
+
+
+<link rel="canonical" href="https://qiu-jp.github.io/2025/04/08/Fast-Partition-Dev/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://qiu-jp.github.io/2025/04/08/Fast-Partition-Dev/","path":"2025/04/08/Fast-Partition-Dev/","title":"Fast_Partition_Dev"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Fast_Partition_Dev | 测试</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">测试</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Qiu Junpeng</p>
+  <div class="site-description" itemprop="description">邱的个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiu-jp.github.io/2025/04/08/Fast-Partition-Dev/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Qiu Junpeng">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="测试">
+      <meta itemprop="description" content="邱的个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Fast_Partition_Dev | 测试">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Fast_Partition_Dev
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-04-08 20:11:38 / 修改时间：23:26:07" itemprop="dateCreated datePublished" datetime="2025-04-08T20:11:38+08:00">2025-04-08</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本文介绍并回顾视频编解码中快速划分算法的发展，主要聚焦于新兴的机器学习方法，对比各方法的不同划分表征方式和后处理模式。</p>
+<p>在HEVC视频编解码标准下，划分方法仅存在QT四划分。在视频编码的过程中，决定一个CTU块的划分是一个自上而下的迭代过程。编码器会从最大的CTU块开始执行判决，计算划分与不划分两种情况分别的代价，选择代价更小的方式。若判决需要划分，则QT四划分会将原64x64的编码块划分为四个32x32的编码块，在迭代进行是否划分的判决，直至编码块大小达到规定最小尺寸或CTU中的各子CU编码块均判决为不再划分。在这一判决过程中，代价计算综合了码率和失真这两要素，广泛采用SAD或SATD代价，计算公式如下。</p>
+<p>因此，这一过程被称为RDO过程，即Rate-Distortion Optimization。在RDO过程中，一个编码块的代价计算应为其所有子编码块代价之和，即划分情况下，编码块的代价应为各子划分块的代价；不划分情况下，编码块的代价则以当前编码块的尺寸进行数学计算。因此，可以发现，RDO过程是通过不断地迭代计算得到所有划分情况的代价，整体的迭代过程是自顶向下的，而代价计算和判断是自下向上的。</p>
+<p>在VVC标准中，正式引入了QTMT划分。QTMT划分在四叉树的基础上增加了二叉树和三叉树的划分方式，因此VVC中RDO的划分判决共有6类，BTH划分、BTV划分、QT划分、TTH划分、TTV划分和不划分，相比于原有的划分种类扩展了近3倍，再带来编码性能提升的同时大大增加了RDO判决的复杂度，是编码过程中极耗时的部分。因此，相关的工作主要集中于快速编码算法的发展。这些快速编码算法只要可分为两种思路，一种是传统的基于统计学的剪枝算法，根据一定的图像块特征和模式的统计学结果减少需要检索的划分类型或提前中止划分。另一种是基于机器学习的AI算法，对于视频各帧的处理即为对于一张完整图像的处理，因此计算机视觉领域的相关思路和算法模式可被应用其中。</p>
+<p>（一）<br>来自ICIP 2018的Fast QTBT Partitioning Decision for Interframe Coding with Convolution Neural Network是最早将卷积神经网络应用于帧间QTBT快速划分判决的工作。本篇文章中卷积神经网络的结构是作者对于QTBT划分结果进行统计学分析从而得到启发。</p>
+<p>首先，在整体网络任务上，将快速划分问题归类为多分类问题。然而，由于不同的划分会产生不同尺寸的图像，难以设计一个统一的网络接受不同尺寸的输入并进行分类，因此作者通过统一的深度表示来对QTBT划分结构进行建模。深度定义为，QT深度的两倍叠加BT深度。（注意，该篇文章为HEVC到VVC的过渡阶段工作，此时仅引入BT划分，不存在MT划分）最大CTU块规定为128x128，最小QT划分块规定为16x16，故最大QT深度为3，最小CU尺寸为4x4，故最大BT划分深度规定为4，（先进行完QT划分才会执行BT划分），总QTBT统一深度的取值范围为0到10。这一统一深度的表示是指所考虑的CU块中的最大深度，即如果CU块中存在需要划分到最小尺寸4x4的情况，那么该CU块的统一深度表示即为10。因此，很容易理解这样一个统计学事实，即128x128尺寸的CU的统一深度表示会在分布上存在偏差，有将近50%的情况需要划分到最大深度，因为CU的尺寸很大，所包含的纹理空间也相应很大，存在复杂纹理的情况也更加普遍。而对于64x64尺寸的CU和32x32尺寸的CU来说，统一深度表示的分布更加平均，因为小尺寸纹理空间包含的范围更小，出现复杂纹理和平滑纹理的情况更加平均，适合用来训练。最终本文选取64x64尺寸的CU作为输入，并且为了避免过拟合，将深度进行归类形成待分类的种类。</p>
+<p><img src="/2025/03/20/VVC-1/artition-Dev/image-20250331163346677.png" alt="image-20250331163346677"></p>
+<p>具体的CNN网络结构见下图，</p>
+<p><img src="/2025/03/20/VVC-1/artition-Dev/image-20250331163245256.png" alt="image-20250331163245256"></p>
+<p>首先前处理执行一个简单的运动补偿过程获得待编码块的参考块，相减得到残差块，残差块隐含视频序列的时域冗余信息，相比原始参考块像素是更有力的特征表示。残差块减去平均值后作为网络输入，经过三层卷积层提取特征并最终连接展平为一个特征向量，随后考虑量化参数qp和参考的时域层数两个特征，将三者进行非线性地融合并通过全连接层输出分类结果。损失函数考虑网络权重矩阵的大小和分类结果与原始结果的差值（即准确率）。</p>
+<p>获得分类结果后，快速划分的后处理方法如下：</p>
+<p><img src="/2025/03/20/VVC-1/artition-Dev/image-20250331165615216.png" alt="image-20250331165615216"></p>
+<p>对于一个CTU进行划分判决时，首先会直接将128x128大小的CU划分为64x64大小的子块，根据网络推理结果得到对应子块的最大划分深度$d_i$。然后，对于参考块也进行类似操作，得到对应参考块的预测最大划分深度$d_i^{‘}$，由于参考块是已编码重建块，故实际最大划分深度已知为$D_i^{‘}$。</p>
+<p>修正子块的预测深度为<br>$$<br>\begin{equation}<br>d_i&#x3D;d_i+max \{ D_i^{‘}-d_i^{‘},0 \}<br>\end{equation}<br>$$<br>含义为：若参考块预测正确，则接受子块的预测结果；若参考块预测值偏大，则保留子块的偏大预测结果以保证足够划分深度用以进行判决；若参考块预测值偏小，则子块预测值需进行补偿。</p>
+<p>获得四个子64x64块的预测深度后，原128x128CTU块将根据预测深度开启划分判决。若四个子块预测深度均为0，说明最小划分尺寸为64x64，因此128x128尺寸的CTU块将进行深度不超过2的划分判决以决定最佳划分模式。若仅存在一个子块预测深度不为0，则128x128尺寸的CTU块将正常执行QTBT划分判决，只是64x64子块的划分无需判断提前终止。若多个子块预测深度不为0，那么128x128尺寸CTU块会直接执行QT划分，然后对应64x64子块会根据预测划分深度进行判定和提前终止。</p>
+<p>总结：本文的工作作为HEVC到VVC的过度工作被纳入VVC的标准中，但由于时间比较久远，从现在VVC的QTMT划分结构的角度来看，本文提出的统一深度表示不再能表示复杂的QTMT结构。不过本文的思想值得进行归纳，首先需明确网络的多分类任务是针对单个块的纹理复杂度进行粗分，最终仅能得到反映编码块整体深度的一个粗糙表示，在后处理中服务于划分判决的提前终止（剪枝思想）。更加理想的多分类任务应针对划分模式进行预测，从而可以获得更加细节的表示。在本文所提出的后处理结构中，针对64x64及更小尺寸的块划分并没有加速，这也是这一整体性深度表示方法的劣势。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/03/20/%E5%A4%87%E6%B3%A8/" rel="prev" title="备注">
+                  <i class="fa fa-angle-left"></i> 备注
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/04/08/Neural-Video-Codecs/" rel="next" title="Neural-Video-Codecs">
+                  Neural-Video-Codecs <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Qiu Junpeng</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

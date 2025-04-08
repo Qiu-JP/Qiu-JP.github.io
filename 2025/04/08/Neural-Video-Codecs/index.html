@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"qiu-jp.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文介绍非传统方法的视频编码器发展。 第一篇聚焦于使用深度学习方法的端到端视频压缩模型来源于CVPR2019论文，DVC: An End-to-end Deep Video Compression Framework。作者提出，传统的视频编码器主要由多个模块组成，例如：运动估计、DCT变换、量化等各模块紧密耦合工作，实现减少视频中的信息冗余的功能。但是图像压缩的相关研究进展说明，在图像压缩领域，D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Neural-Video-Codecs">
+<meta property="og:url" content="https://qiu-jp.github.io/2025/04/08/Neural-Video-Codecs/index.html">
+<meta property="og:site_name" content="测试">
+<meta property="og:description" content="本文介绍非传统方法的视频编码器发展。 第一篇聚焦于使用深度学习方法的端到端视频压缩模型来源于CVPR2019论文，DVC: An End-to-end Deep Video Compression Framework。作者提出，传统的视频编码器主要由多个模块组成，例如：运动估计、DCT变换、量化等各模块紧密耦合工作，实现减少视频中的信息冗余的功能。但是图像压缩的相关研究进展说明，在图像压缩领域，D">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/-Video-Codecs/figure1.png">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/-Video-Codecs/figure2.png">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/-Video-Codecs/figure3.png">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/-Video-Codecs/figure4.png">
+<meta property="og:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/-Video-Codecs/figure5.png">
+<meta property="article:published_time" content="2025-04-08T15:26:57.000Z">
+<meta property="article:modified_time" content="2025-04-08T15:28:07.773Z">
+<meta property="article:author" content="Qiu Junpeng">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qiu-jp.github.io/2025/03/20/VVC-1/-Video-Codecs/figure1.png">
+
+
+<link rel="canonical" href="https://qiu-jp.github.io/2025/04/08/Neural-Video-Codecs/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://qiu-jp.github.io/2025/04/08/Neural-Video-Codecs/","path":"2025/04/08/Neural-Video-Codecs/","title":"Neural-Video-Codecs"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Neural-Video-Codecs | 测试</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">测试</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Qiu Junpeng</p>
+  <div class="site-description" itemprop="description">邱的个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiu-jp.github.io/2025/04/08/Neural-Video-Codecs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Qiu Junpeng">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="测试">
+      <meta itemprop="description" content="邱的个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Neural-Video-Codecs | 测试">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Neural-Video-Codecs
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-04-08 23:26:57 / 修改时间：23:28:07" itemprop="dateCreated datePublished" datetime="2025-04-08T23:26:57+08:00">2025-04-08</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本文介绍非传统方法的视频编码器发展。</p>
+<p>第一篇聚焦于使用深度学习方法的端到端视频压缩模型来源于CVPR2019论文，DVC: An End-to-end Deep Video Compression Framework。作者提出，传统的视频编码器主要由多个模块组成，例如：运动估计、DCT变换、量化等各模块紧密耦合工作，实现减少视频中的信息冗余的功能。但是图像压缩的相关研究进展说明，在图像压缩领域，DNN具有相当强大的潜力，通过合理的结构可以实现端到端的压缩，并且与传统图像编码器如JPEG等性能相当。这是因为DNN可能具有传统方法所不具备的强大的端到端训练能力和高度非线性化变换的能力，但是直接将DNN应用在视频压缩领域中存在以下几个问题：1. 视频压缩中最大的信息冗余来自于视频中的运动信息，如何识别、生成并压缩这一信息？2. 如何构建以码率—失真代价这一指标作为标准的DNN视频压缩系统？</p>
+<p>因此本文作者提出了Deep Video Compression（DVC）模型，该模型的最大特点为：</p>
+<p>1、将传统视频压缩框架中的关键组成部分如：运动估计、运动补偿、残差压缩、运动压缩、量化、码率估计等功能全部融入一个端到端的神经网络结构。</p>
+<p>2、该网络是基于码率—失真代价做优化训练的。</p>
+<p>3、在该DVC模型中，网络结构并不是非常抽象的，而是与传统视频压缩框架中的关键结构一一对应的，可以很方便地进行修改工作。</p>
+<p>具体的网络结构和传统视频压缩结构如下：</p>
+<p><img src="/2025/03/20/VVC-1/-Video-Codecs/figure1.png" alt="network structure"></p>
+<p>在传统视频编码框架中，各模块的行为是基于基本单元的编码块，整体的流程可被概括为一个预测-变换框架。在编码当前帧时（P帧），编码器需要根据其参考帧进行基于块的运动估计和运动补偿以实现帧间预测，消除视频序列的时域信息冗余。参考帧来自于在当前编码帧之前已完成编码并解码获得的重建帧，根据特定算法获得当前待编码帧的每一个块的的运动矢量，根据运动矢量预测待编码块的预测帧，预测帧和原始帧的残差即为所需编码的残差。因此，需要编码的信息从原来的完整帧的信息减少为单帧中每一个块的运动矢量和残差，残差值会经过变换量化与运动矢量最终通过熵编码模块生成码流。在解码过程中，通过反变换和反量化获得原始残差信息，结合运动矢量和参考帧获得预测帧即可进行帧的重建。</p>
+<p>在右图作者提出的基于深度学习的编码框架中，可以看到传统编码器的各功能均存在一对一的对应网络结构。</p>
+<p>一、运动信息的获取</p>
+<p>在考虑当前编码帧与参考帧之间的关系时，该网络结构通过一个CNN结构去预测光流，光流表示即作为视频中的运动信息表示，由于光流的原始值可能需要使用较大的比特数，因此通过一个MV编码网络将原始光流值进行压缩和量化，对应的存在一个MV解码网络用以获得重建的运动信息。该网络结构如下：</p>
+<p><img src="/2025/03/20/VVC-1/-Video-Codecs/figure2.png" alt="mv network"></p>
+<p>可以看出是个很典型的编码器-解码器结构，类似U-net，中心思想是通过卷积层和非线性变换提取整幅图像的特征。对于M X N X 2的光流表示，4层卷积层会将其压缩为M&#x2F;16 X N&#x2F;16  X 128的表示，再通过量化得到最终表示。最终表示即被量化过的表示是要被送进熵编码结构形成码流的，具体的数据结构unclear（TODO：通过源代码去看细节）。与传统编码器对于运动信息的处理结构区别在于，传统编码器将运动信息表征为运动矢量，运动矢量的关键是用来做预测以计算残差，所以运动矢量是必要的需要被编码的信息。传统编码器中涉及运动矢量及相关计算的模块有：1. 运动矢量的得出，是传统编码器计算复杂度的重大来源之一 2. 运动矢量需要帮助去做预测帧的计算。 3. 码流中对于运动矢量的解码。 该网络的改动可对应看到：1.运动信息的表示采用光流，即原运动矢量的得出在该结构中为光流网络，参考自End-to-end optimized image compression。2. 该编码器结构将原始光流信息压缩出的运动信息表示送去编为码流，即类似变换量化的处理概念，但是通过什么学习是一个问题，它是如何知道压缩完应该是什么样的形式呢（TODO）。 3.解码器结构就是将中间运动表示还原成光流，从结构图中可以看出，它是将光流信息应用于后续的类似传统编码器的预测操作（消除冗余），即光流信息是怎么用来得到传统编码器的残差这一概念的，可以看后续具体结构。</p>
+<p>二、运动补偿</p>
+<p><img src="/2025/03/20/VVC-1/-Video-Codecs/figure3.png" alt="motion compensation network"></p>
+<p>运动补偿网络用以模拟传统编码器中获得预测帧的过程，这一过程即是在消除视频的时域冗余信息。该网络首先将解码后光流信息和参考帧warp成一张完整图像（TODO:怎么做的），再与光流信息和参考帧concatenate成一个三维度特征输入CNN网络中，最终得到预测帧。这样的一个运动补偿的方法是不基于块的，好处在于可以规避传统方法所导致重建块与块之间的分裂（去除环路滤波器），并且相比基于传统方法中给定的运动矢量和预测帧生成方法，也许深度学习方法的效果会更好。（上限更高）（TODO：训练过程中直观地应希望预测帧与原始帧尽可能接近使得残差最小码率最小，不过本篇文章为端到端的框架，可能是所有的模块获得结果后统一根据RD-Cost进行训练）</p>
+<p>MC内部的CNN结构如下，也是类似U-Net的编码器解码器结构，先通过卷积和池化层缩小特征图尺寸得到特征表示，再通过上采样和反卷积进行特征解码获得参考帧，解码过程中也获得了编码过程中不同尺寸的特征以丰富特征信息。</p>
+<p><img src="/2025/03/20/VVC-1/-Video-Codecs/figure4.png" alt="mc cnn network"></p>
+<p>三、残差编码</p>
+<p>采用论文Variational image compression with a scale hyperprior中的高度非线性网络将残差表示为潜在表示，相比于传统算法的好处在于利用更多非线性特性可以达到更好的压缩效率。</p>
+<p>四、训练方法</p>
+<p>损失函数考虑R-D Cost。</p>
+<p>λD + R &#x3D; λd(xt, xˆt) + (H( ˆmt) + H(ˆyt))</p>
+<p>五、量化方法</p>
+<p>在熵编码前需要进行量化，训练阶段对需量化的量如残差和运动信息添加噪声，推理阶段直接向下取整。</p>
+<p>六、码率估计</p>
+<p>在考虑R-D Cost的时候需要估计潜在表示的码率，码率估计的方法应是这些潜在表示的熵。为了避免传统方法的计算，可以通过CNN网络估计潜在表示的概率，从而获得其对应的熵。CNN结构采用论文Variational image compression with a scale hyperprior。</p>
+<p>总结：该篇论文作为深度学习端到端编码器的起始工作，整体的设计思路较为明确，即仿照传统编码器的结构将各功能替换为深度学习方法实现。</p>
+<p>第二篇论文题为Towards Practical Real-Time Neural Video Compression，发表于2025年的CVPR，该篇文章主要实现实时的神经网络视频编解码器。神经网络编解码器（Neural Video Codec）的编码时间主要在于计算代价和非计算的操作代价，包括存储输入输出和功能调用等，以往的工作主要专注于运算代价的减少，但该篇文章主要关注如何减少操作代价。</p>
+<p>本文主要的贡献有：</p>
+<ol>
+<li>本文采用一种隐含的时域信息建模方法取代复杂的显式运动表示模块</li>
+<li>本文采用单一的低分辨率隐含表示取代逐步下采样。</li>
+<li>本文采用模型整数化方法以实现一致的跨设备编码和基于模块组的码率控制方案以提高适应性。</li>
+</ol>
+<p>本文所提出的DCVC-RT结构见下图。</p>
+<p><img src="/2025/03/20/VVC-1/-Video-Codecs/figure5.png" alt="DCVD-RT"></p>
+<p>在编码具体一帧时，首先该帧图像先会进行1&#x2F;8精度的小图划分，再映射为一维向量，即patch embedding操作，详见（An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale）。</p>
+<p>一、Conditional Coding（TODO：CANF-VC: Conditional augmented normalizing flows for video compression；Deep contextual video compression；Neural Video Compression with Feature Modulation）</p>
+<p>二、Latents at low Resolution</p>
+<p>常用的编码器在处理网络中每一层的隐含表示时，是通过逐步的降采样以减小隐含表示的维度，往往所做的操作是每一层减半隐含表示的大小同时加倍其通道数。（直观在卷积层中的体现即为stride为2，同时卷积核个数翻倍）在本文中，作者提出为了加速编码速度，直接将一帧图像进行低分辨率的划分，在每一块划分中进行Conditional Coding，相比于对完整的一帧图像进行逐步降采样的编码，在0.3%的BD-Rate性能损失下达到3.6倍的加速。（TODO：这一块的感受野论述有点迷）</p>
+<p>三、隐含的时域信息建模</p>
+<p>作者研究发现，传统的运动模块在网络层数上占用很大，但实际上相比起Conditional Coding并没有带来很巨大的运算复杂度，因为运动是易于压缩的，因此对于这样的低运算复杂度模块，应聚焦于减小过多的网络层所带来的操作复杂度。</p>
+<p>因此，作者不在考虑使用网络去表征出具体的运动信息，而是通过简单的特征提取网络提取时域上的关联即可。（TODO：具体提取的细节要看代码）</p>
+<p>四、码率控制</p>
+<p>码率控制是根据量化参数进行的，网络会学习一系列超先验的模块，这些模块能够模拟不同量化参数下的隐含表示的概率分布。通过类似的方法，也可以对每一个模块进行学习，得到相应的向量库。每个向量库都旨在学习一组向量，这些向量能够根据隐含表示的特征自适应地对其进行缩放，从而实现灵活且精细的幅度调整。（幅度调整即体现为乘法）</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/04/08/Fast-Partition-Dev/" rel="prev" title="Fast_Partition_Dev">
+                  <i class="fa fa-angle-left"></i> Fast_Partition_Dev
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Qiu Junpeng</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
